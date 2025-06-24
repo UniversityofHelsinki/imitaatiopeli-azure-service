@@ -120,6 +120,7 @@ deploy_dev:
     - oc set env deploy/imitaatiopeli-azure-dev AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY
     - oc set env deploy/imitaatiopeli-azure-dev AZURE_OPENAI_DEPLOYMENT_NAME=$AZURE_OPENAI_DEPLOYMENT_NAME
     - oc set env deploy/imitaatiopeli-azure-dev AZURE_OPENAI_API_VERSION=$AZURE_OPENAI_API_VERSION
+    - oc set env deploy/imitaatiopeli-azure-dev DB_HOST=$DB_HOST_DEV
     # postgres environment variables
     - oc set env deploy/imitaatiopeli-azure-dev OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
     - oc set env deploy/imitaatiopeli-azure-dev OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
