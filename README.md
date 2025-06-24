@@ -19,12 +19,6 @@ AZURE_OPENAI_ENDPOINT=your-azure-openai-endpoint (found in keepass)
 AZURE_OPENAI_API_KEY=your-api-key (found in keepass)
 AZURE_OPENAI_DEPLOYMENT_NAME=your-deployment-name (found in keepass)
 AZURE_OPENAI_API_VERSION=2025-01-01-preview
-
-POSTGRES_USER=postgres
-PASSWORD=(your local postgres password)
-PORT=5432
-HOST=localhost
-DATABASE=(your local postgres schema)
 ```
 
 Run npm install
