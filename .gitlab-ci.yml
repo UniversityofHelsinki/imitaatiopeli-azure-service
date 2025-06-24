@@ -7,7 +7,7 @@ variables:
 
 stages:
   - setup
-  #- test
+  - test
   - dependency-track-generate
   - dependency-track-submit
   - deploy
@@ -38,27 +38,20 @@ build:
       - node_modules
 
 # Define the process for test stage
-#test:
-#  stage: test
-#  image: node:22-alpine
-#  services:
-#    - postgres:16-alpine
-#  variables:
-#    POSTGRES_DB: ${DATABASE}
-#    POSTGRES_USER: ${POSTGRES_USER}
-#    POSTGRES_PASSWORD: ${PASSWORD}
-#    POSTGRES_HOST_AUTH_METHOD: trust
-#  tags:
-#    - ohtu-build-4
-#  script:
-#    - npm run coverage
-#  coverage: /All files\s*\|\s*([\d\.]+)/
-#  artifacts:
-#    name: imitaatiopeli-coverage
-#    paths:
-#      - coverage
-#    expire_in: 1 hour
-#  extends: .dependencies_cache
+test:
+  stage: test
+  image: node:22-alpine
+  tags:
+    - ohtu-build-4
+  script:
+    - npm run coverage
+  coverage: /All files\s*\|\s*([\d\.]+)/
+  artifacts:
+    name: imitaatiopeli-coverage
+    paths:
+      - coverage
+    expire_in: 1 hour
+  extends: .dependencies_cache
 
 generate-sbom:
   stage: dependency-track-generate
