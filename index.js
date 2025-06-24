@@ -5,7 +5,6 @@ const helmet = require("helmet");
 const compression = require("compression");
 const routes = require("./api/routes.js");
 const { logger, errorLogger } = require("./logger.js");
-const database = require("./services/database");
 
 const app = express();
 const router = express.Router();
@@ -21,13 +20,6 @@ app.use(bodyParser.json());
 
 app.use("/api", router);
 routes(router);
-
-database.query("SELECT NOW()", (err, res) => {
-  console.log(
-    err ? "errors: " + err : "Postgres client connected ",
-    res.rows[0],
-  );
-});
 
 // Start the server
 app.listen(port, ipaddress, () => {

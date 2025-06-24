@@ -115,22 +115,14 @@ deploy_dev:
         echo "The application has been created."
       fi
     # add secrets here
-    - oc delete secret generic imitaatiopeli-db-dev-password --ignore-not-found
-    - oc create secret generic imitaatiopeli-db-dev-password --from-literal=PASSWORD=$IMITAATIOPELI_DEV_PASSWORD
     # list environment variables here
     - oc set env deploy/imitaatiopeli-azure-dev AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT
     - oc set env deploy/imitaatiopeli-azure-dev AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY
     - oc set env deploy/imitaatiopeli-azure-dev AZURE_OPENAI_DEPLOYMENT_NAME=$AZURE_OPENAI_DEPLOYMENT_NAME
     - oc set env deploy/imitaatiopeli-azure-dev AZURE_OPENAI_API_VERSION=$AZURE_OPENAI_API_VERSION
     # postgres environment variables
-    - oc set env --from=secret/imitaatiopeli-db-dev-password deploy/imitaatiopeli-azure-dev
     - oc set env deploy/imitaatiopeli-azure-dev OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
     - oc set env deploy/imitaatiopeli-azure-dev OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
-    - oc set env deploy/imitaatiopeli-azure-dev POSTGRES_USER=$IMITAATIOPELI_DEV_USER_NAME
-    - oc set env deploy/imitaatiopeli-azure-dev PORT=$IMITAATIOPELI_DEV_PORT
-    - oc set env deploy/imitaatiopeli-azure-dev HOST=$IMITAATIOPELI_DEV_HOST
-    - oc set env deploy/imitaatiopeli-azure-dev DATABASE=$IMITAATIOPELI_DEV_DATABASE
-    - oc set env deploy/imitaatiopeli-azure-dev SSL=$IMITAATIOPELI_DEV_SSL
     - oc set env deploy/imitaatiopeli-azure-dev TZ="Europe/Helsinki"
     # start build process in OpenShift
     - oc start-build imitaatiopeli-azure-dev --from-dir=. --follow
