@@ -13,11 +13,42 @@ A Node.js Express API that connects to Azure OpenAI to simulate human-like conve
 1. Clone the repository
 2. Install dependencies
 3. Create a `.env` file in the root directory
+
 ```
 AZURE_OPENAI_ENDPOINT=your-azure-openai-endpoint (found in keepass)
 AZURE_OPENAI_API_KEY=your-api-key (found in keepass)
 AZURE_OPENAI_DEPLOYMENT_NAME=your-deployment-name (found in keepass)
 AZURE_OPENAI_API_VERSION=2025-01-01-preview
+
+POSTGRES_USER=postgres
+PASSWORD=(your local postgres password)
+PORT=5432
+HOST=localhost
+DATABASE=(your local postgres schema)
 ```
 
+Run npm install
 
+Start the service with node index.js
+
+Run tests with command: npm run coverage
+
+## Deployment
+
+Add additional notes about how to deploy this on a live system.
+
+## Contributing
+
+If you're interested in contributing, feel free to send a pull request!
+
+## Versioning
+
+Not specified.
+
+## License
+
+This project is licensed under the MIT License
+
+## Acknowledgments
+
+- Acknowledge the works of others used/referred in the project.
