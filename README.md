@@ -18,7 +18,7 @@ A Node.js Express API that connects to Azure OpenAI to simulate human-like conve
 AZURE_OPENAI_ENDPOINT=your-azure-openai-endpoint (found in keepass)
 AZURE_OPENAI_API_KEY=your-api-key (found in keepass)
 AZURE_OPENAI_DEPLOYMENT_NAME=your-deployment-name (found in keepass)
-AZURE_OPENAI_API_VERSION=2025-01-01-preview
+AZURE_OPENAI_API_VERSION=your-api-version(found in keepass)
 ```
 
 Run npm install
