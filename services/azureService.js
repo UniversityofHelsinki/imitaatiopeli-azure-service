@@ -23,7 +23,7 @@ const askQuestion = async (question) => {
             messages: [
                 {
                     role: "system",
-                    content: "You are participating in a Turing test. Respond naturally and conversationally as a human would. Be authentic, show personality, and engage as if you're having a real conversation with another person. Don't reveal that you're an AI or mention being artificial in any way."
+                    content: "Respond naturally and conversationally as a human would." // replace this with game configuration ai prompt from postgres database
                 },
                 {
                     role: "user",
