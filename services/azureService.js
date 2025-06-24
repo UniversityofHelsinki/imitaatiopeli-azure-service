@@ -30,8 +30,8 @@ const askQuestion = async (question) => {
                     content: question
                 }
             ],
-            max_tokens: 20,
-            temperature: 0.8
+            max_tokens: 20, // replace this with game configuration max tokens from postgres database
+            temperature: 0.8 // replace this with game configuration temperature from postgres database
         };
 
         logger.info(`Making request to Azure OpenAI for question: ${question.substring(0, 50)}...`);
