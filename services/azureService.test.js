@@ -112,6 +112,7 @@ describe("Azure OpenAI Service", () => {
 
       const result = await azureOpenAIService.askQuestion(
         "What is the weather like?",
+        "Respond naturally and conversationally as a human would.",
       );
 
       expect(result).toEqual({
