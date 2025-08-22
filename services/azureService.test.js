@@ -113,6 +113,7 @@ describe("Azure OpenAI Service", () => {
       const result = await azureOpenAIService.askQuestion(
         "What is the weather like?",
         "Respond naturally and conversationally as a human would.",
+        0.8,
       );
 
       expect(result).toEqual({
@@ -141,7 +142,7 @@ describe("Azure OpenAI Service", () => {
                 content: "What is the weather like?",
               },
             ],
-            max_tokens: 20,
+            max_tokens: 50,
             temperature: 0.8,
           }),
         },
@@ -250,7 +251,11 @@ describe("Azure OpenAI Service", () => {
         json: jest.fn().mockResolvedValueOnce(mockResponse),
       });
 
-      const result = await azureOpenAIService.askQuestion("Test question");
+      const result = await azureOpenAIService.askQuestion(
+        "Test question",
+        "Test prompt",
+        0.8,
+      );
 
       expect(result.answer).toBe("No response received");
     });
