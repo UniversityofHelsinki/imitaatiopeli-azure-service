@@ -17,9 +17,9 @@ const validateConfig = () => {
   }
 };
 
-const askQuestion = async (question, prompt, temperature) => {
+const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
   try {
-    const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
+    const url = languageModelUrl;
 
     const requestBody = {
       messages: [
@@ -32,7 +32,7 @@ const askQuestion = async (question, prompt, temperature) => {
           content: question,
         },
       ],
-      max_tokens: 50, // replace this with game configuration max tokens from postgres database
+      max_tokens: 150, // replace this with game configuration max tokens from postgres database
       temperature: temperature,
     };
 
