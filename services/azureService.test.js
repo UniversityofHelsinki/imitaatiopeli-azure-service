@@ -23,11 +23,7 @@ describe("Azure OpenAI Service", () => {
     jest.clearAllMocks();
 
     // Set up environment variables for each test
-    process.env.AZURE_OPENAI_ENDPOINT =
-      "https://test-endpoint.openai.azure.com";
     process.env.AZURE_OPENAI_API_KEY = "test-api-key";
-    process.env.AZURE_OPENAI_DEPLOYMENT_NAME = "test-deployment";
-    process.env.AZURE_OPENAI_API_VERSION = "2025-01-01-preview";
 
     // Clear the module cache to ensure fresh imports
     jest.resetModules();
@@ -45,42 +41,14 @@ describe("Azure OpenAI Service", () => {
       }).not.toThrow();
     });
 
-    it("should throw error when AZURE_OPENAI_ENDPOINT is missing", () => {
-      delete process.env.AZURE_OPENAI_ENDPOINT;
-
-      expect(() => {
-        require("./azureService");
-      }).toThrow(
-        "Missing required Azure OpenAI configuration. Please set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT_NAME environment variables.",
-      );
-    });
-
     it("should throw error when AZURE_OPENAI_API_KEY is missing", () => {
       delete process.env.AZURE_OPENAI_API_KEY;
 
       expect(() => {
         require("./azureService");
       }).toThrow(
-        "Missing required Azure OpenAI configuration. Please set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT_NAME environment variables.",
+        "Missing required Azure OpenAI configuration. Please set AZURE_OPENAI_API_KEY environment variable.",
       );
-    });
-
-    it("should throw error when AZURE_OPENAI_DEPLOYMENT_NAME is missing", () => {
-      delete process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
-
-      expect(() => {
-        require("./azureService");
-      }).toThrow(
-        "Missing required Azure OpenAI configuration. Please set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT_NAME environment variables.",
-      );
-    });
-
-    it("should use default API version when not provided", () => {
-      delete process.env.AZURE_OPENAI_API_VERSION;
-
-      expect(() => {
-        azureOpenAIService = require("./azureService");
-      }).not.toThrow();
     });
   });
 
@@ -114,6 +82,7 @@ describe("Azure OpenAI Service", () => {
         "What is the weather like?",
         "Respond naturally and conversationally as a human would.",
         0.8,
+        "https://test-endpoint.openai.azure.com/openai/deployments/test-deployment/chat/completions?api-version=2025-01-01-preview",
       );
 
       expect(result).toEqual({
@@ -142,7 +111,7 @@ describe("Azure OpenAI Service", () => {
                 content: "What is the weather like?",
               },
             ],
-            max_tokens: 50,
+            max_tokens: 150,
             temperature: 0.8,
           }),
         },
