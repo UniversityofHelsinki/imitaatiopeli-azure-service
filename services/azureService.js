@@ -2,24 +2,21 @@ const { logger } = require("../logger");
 
 // Configuration
 const config = {
-  endpoint: process.env.AZURE_OPENAI_ENDPOINT,
   apiKey: process.env.AZURE_OPENAI_API_KEY,
-  deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME,
-  apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2025-01-01-preview",
 };
 
 // Validate configuration on module load
 const validateConfig = () => {
-  if (!config.endpoint || !config.apiKey || !config.deploymentName) {
+  if (!config.apiKey) {
     throw new Error(
-      "Missing required Azure OpenAI configuration. Please set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT_NAME environment variables.",
+      "Missing required Azure OpenAI configuration. Please set AZURE_OPENAI_API_KEY environment variable.",
     );
   }
 };
 
-const askQuestion = async (question, prompt, temperature) => {
+const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
   try {
-    const url = `${config.endpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
+    const url = languageModelUrl;
 
     const requestBody = {
       messages: [
@@ -32,7 +29,7 @@ const askQuestion = async (question, prompt, temperature) => {
           content: question,
         },
       ],
-      max_tokens: 50, // replace this with game configuration max tokens from postgres database
+      max_tokens: 150, // replace this with game configuration max tokens from postgres database
       temperature: temperature,
     };
 

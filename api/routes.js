@@ -9,7 +9,7 @@ module.exports = (router) => {
 
   router.post("/ask", async (req, res) => {
     try {
-      const { question, prompt, temperature } = req.body;
+      const { question, prompt, temperature, languageModelUrl } = req.body;
 
       if (!question || !prompt || !temperature) {
         return res.status(400).json({
@@ -22,7 +22,12 @@ module.exports = (router) => {
         `Received question: ${question} with prompt: ${prompt} and temperature ${temperature}...`,
       );
 
-      const result = await askQuestion(question, prompt, temperature);
+      const result = await askQuestion(
+        question,
+        prompt,
+        temperature,
+        languageModelUrl,
+      );
       res.json(result);
     } catch (error) {
       logger.error("Error processing question:", error);
