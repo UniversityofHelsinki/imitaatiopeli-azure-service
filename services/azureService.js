@@ -14,6 +14,52 @@ const validateConfig = () => {
   }
 };
 
+const askContextualQuestion = async (
+  messageBody,
+  prompt,
+  temperature,
+  languageModelUrl,
+  context,
+) => {
+  try {
+    const url = languageModelUrl;
+    messageBody.max_tokens = 150;
+    messageBody.temperature = temperature;
+    logger.info(
+      `Making request to Azure OpenAI for message: ${messageBody.messages[0].content.substring(0, 50)}...`,
+    );
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": config.apiKey,
+      },
+      body: JSON.stringify(messageBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logger.error(`Azure OpenAI API error: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Azure OpenAI API error: ${response.status} - ${errorText}`,
+      );
+    }
+
+    const data = await response.json();
+    logger.info("Successfully received response from Azure OpenAI");
+
+    return {
+      success: true,
+      answer: data.choices[0]?.message?.content || "No response received",
+      usage: data.usage,
+    };
+  } catch (error) {
+    logger.error("Error making request to Azure OpenAI:", error);
+    throw new Error("Failed to connect to Azure OpenAI service");
+  }
+};
+
 const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
   try {
     const url = languageModelUrl;
@@ -73,4 +119,5 @@ validateConfig();
 
 module.exports = {
   askQuestion,
+  askContextualQuestion,
 };
