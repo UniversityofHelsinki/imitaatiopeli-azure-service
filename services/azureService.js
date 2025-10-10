@@ -14,30 +14,11 @@ const validateConfig = () => {
   }
 };
 
-const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
+const makeOpenAIRequest = async (requestBody, languageModelUrl, logContext) => {
   try {
-    const url = languageModelUrl;
+    logger.info(`Making request to Azure OpenAI for ${logContext}...`);
 
-    const requestBody = {
-      messages: [
-        {
-          role: "system",
-          content: prompt,
-        },
-        {
-          role: "user",
-          content: question,
-        },
-      ],
-      max_tokens: 150, // replace this with game configuration max tokens from postgres database
-      temperature: temperature,
-    };
-
-    logger.info(
-      `Making request to Azure OpenAI for question: ${question.substring(0, 50)}...`,
-    );
-
-    const response = await fetch(url, {
+    const response = await fetch(languageModelUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -68,9 +49,44 @@ const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
   }
 };
 
+const askContextualQuestion = async (
+  messageBody,
+  prompt,
+  temperature,
+  languageModelUrl,
+  context,
+) => {
+  messageBody.max_tokens = 150;
+  messageBody.temperature = temperature;
+  const logContext = `message: ${messageBody.messages[0].content.substring(0, 50)}`;
+  return await makeOpenAIRequest(messageBody, languageModelUrl, logContext);
+};
+
+const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
+  const requestBody = {
+    messages: [
+      {
+        role: "system",
+        content: prompt,
+      },
+      {
+        role: "user",
+        content: question,
+      },
+    ],
+    max_tokens: 150, // replace this with game configuration max tokens from postgres database
+    temperature: temperature,
+  };
+
+  const logContext = `question: ${question.substring(0, 50)}`;
+
+  return await makeOpenAIRequest(requestBody, languageModelUrl, logContext);
+};
+
 // Initialize configuration validation
 validateConfig();
 
 module.exports = {
   askQuestion,
+  askContextualQuestion,
 };
