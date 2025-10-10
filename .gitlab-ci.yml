@@ -186,3 +186,45 @@ deploy_test:
     # patch openshift buildConfig file
     - oc patch bc/imitaatiopeli-azure-test --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
     - oc patch bc/imitaatiopeli-azure-test --patch '{"spec":{"failedBuildsHistoryLimit":1}}'
+
+deploy_prod:
+  stage: deploy
+  tags:
+    - ohtu-build-4
+  environment:
+    name: prod
+  only:
+    - prod
+  except:
+    # Skip deploy when scheduled npm audit and outdated scans are executed.
+    - schedules
+  script:
+    # set home path for openshift 1001 user
+    - export HOME=/home/1001
+    # before any action, I connect to the OpenShift server with the appropriate credentials
+    - oc login https://$OPENSHIFT_ADDR_PROD:$OPENSHIFT_PORT --token=$OPENSHIFT_TOKEN_PROD
+    - oc project imitaatiopeli
+    # create application if it does not exist
+    - |
+      if oc get deploy/imitaatiopeli-azure-prod; then 
+        echo "The application already exists."
+      else 
+        oc new-app . --name=imitaatiopeli-azure-prod --strategy=docker
+        echo "The application has been created."
+      fi
+    # add secrets here
+    # list environment variables here
+    - oc set env deploy/imitaatiopeli-azure-prod AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT
+    - oc set env deploy/imitaatiopeli-azure-prod AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY
+    - oc set env deploy/imitaatiopeli-azure-prod AZURE_OPENAI_DEPLOYMENT_NAME=$AZURE_OPENAI_DEPLOYMENT_NAME
+    - oc set env deploy/imitaatiopeli-azure-prod AZURE_OPENAI_API_VERSION=$AZURE_OPENAI_API_VERSION
+    - oc set env deploy/imitaatiopeli-azure-prod DB_HOST=$DB_HOST_PROD
+    # postgres environment variables
+    - oc set env deploy/imitaatiopeli-azure-prod OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
+    - oc set env deploy/imitaatiopeli-azure-prod OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
+    - oc set env deploy/imitaatiopeli-azure-prod TZ="Europe/Helsinki"
+    # start build process in OpenShift
+    - oc start-build imitaatiopeli-azure-prod --from-dir=. --follow
+    # patch openshift buildConfig file
+    - oc patch bc/imitaatiopeli-azure-prod --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
+    - oc patch bc/imitaatiopeli-azure-prod --patch '{"spec":{"failedBuildsHistoryLimit":1}}'
