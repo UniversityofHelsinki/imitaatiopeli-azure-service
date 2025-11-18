@@ -74,7 +74,7 @@ const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
         content: question,
       },
     ],
-    max_tokens: 150, // replace this with game configuration max tokens from postgres database
+    max_completion_tokens: 125,
     temperature: temperature,
   };
 
