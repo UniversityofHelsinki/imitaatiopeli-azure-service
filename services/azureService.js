@@ -56,7 +56,7 @@ const askContextualQuestion = async (
   languageModelUrl,
   context,
 ) => {
-  messageBody.max_tokens = 150;
+  messageBody.max_completion_tokens = 150;
   messageBody.temperature = temperature;
   const logContext = `message: ${messageBody.messages[0].content.substring(0, 50)}`;
   return await makeOpenAIRequest(messageBody, languageModelUrl, logContext);
