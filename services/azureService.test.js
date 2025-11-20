@@ -111,7 +111,7 @@ describe("Azure OpenAI Service", () => {
                 content: "What is the weather like?",
               },
             ],
-            max_tokens: 150,
+            max_completion_tokens: 125,
             temperature: 0.8,
           }),
         },
