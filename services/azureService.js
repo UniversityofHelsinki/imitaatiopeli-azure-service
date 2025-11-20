@@ -74,7 +74,7 @@ const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
         content: question,
       },
     ],
-    max_completion_tokens: 125,
+    max_completion_tokens: 150,
     temperature: temperature,
   };
 
