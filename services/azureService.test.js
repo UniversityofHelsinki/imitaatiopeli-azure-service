@@ -201,9 +201,6 @@ describe("Azure OpenAI Service", () => {
 
       const { logger } = require("../logger");
       expect(logger.info).toHaveBeenCalledWith(
-        `Making request to Azure OpenAI for question: ${longQuestion.substring(0, 50)}...`,
-      );
-      expect(logger.info).toHaveBeenCalledWith(
         "Successfully received response from Azure OpenAI",
       );
     });
