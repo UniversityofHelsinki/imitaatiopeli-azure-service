@@ -16,8 +16,6 @@ const validateConfig = () => {
 
 const makeOpenAIRequest = async (requestBody, languageModelUrl, logContext) => {
   try {
-    logger.info(`Making request to Azure OpenAI for ${logContext}...`);
-
     const response = await fetch(languageModelUrl, {
       method: "POST",
       headers: {
@@ -58,7 +56,7 @@ const askContextualQuestion = async (
 ) => {
   messageBody.max_completion_tokens = 550;
   messageBody.temperature = temperature;
-  const logContext = `message: ${messageBody.messages[0].content.substring(0, 50)}`;
+  const logContext = `${messageBody.messages[0].content}`;
   return await makeOpenAIRequest(messageBody, languageModelUrl, logContext);
 };
 

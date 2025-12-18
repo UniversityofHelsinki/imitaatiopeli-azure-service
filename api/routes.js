@@ -13,7 +13,6 @@ module.exports = (router) => {
   router.post("/askWithContext", async (req, res) => {
     try {
       const { messageBody, prompt, temperature, languageModelUrl } = req.body;
-
       if (!messageBody || !prompt || !temperature) {
         return res.status(400).json({
           success: false,
@@ -21,10 +20,14 @@ module.exports = (router) => {
         });
       }
 
-      logger.info(
-        `Received message body: ${messageBody} with prompt: ${prompt} and temperature ${temperature}...`,
-      );
+      const latestUserQuestion = Array.isArray(messageBody?.messages)
+        ? [...messageBody.messages].reverse().find((m) => m?.role === "user")
+            ?.content
+        : undefined;
 
+      logger.info(
+        `Making request to Azure OpenAI | question=${latestUserQuestion} | prompt=${prompt} | temperature=${temperature}`,
+      );
       const result = await askContextualQuestion(
         messageBody,
         prompt,
