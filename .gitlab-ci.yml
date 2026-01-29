@@ -10,7 +10,6 @@ stages:
   - test
   - dependency-track-generate
   - dependency-track-submit
-  - sonarqube-check
   - deploy
 
 .dependencies_cache:
@@ -82,26 +81,6 @@ submit-sbom:
     - apk add --no-cache curl
   script:
     - "curl -X POST ${DTRACK_API_URL} -H 'Content-Type: multipart/form-data' -H 'X-Api-Key: '${DTRACK_API_KEY} -F 'projectName='${PROJECT_NAME} -F 'autoCreate=true' -F 'projectVersion='${PROJECT_VERSION} -F 'bom=@sbom.xml'"
-
-sonarqube-check:
-  stage: sonarqube-check
-  tags:
-    - ohtu-build-4
-  image:
-    name: sonarsource/sonar-scanner-cli:latest
-    entrypoint: [""]
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
-    GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task
-  cache:
-    key: "${CI_JOB_NAME}"
-    paths:
-      - .sonar/cache
-  script:
-    - sonar-scanner
-  allow_failure: true
-  only:
-    - main
 
 deploy_dev:
   stage: deploy
@@ -198,6 +177,47 @@ deploy_prod:
   except:
     # Skip deploy when scheduled npm audit and outdated scans are executed.
     - schedules
+  script:
+    # set home path for openshift 1001 user
+    - export HOME=/home/1001
+    # before any action, I connect to the OpenShift server with the appropriate credentials
+    - oc login https://$OPENSHIFT_ADDR_PROD:$OPENSHIFT_PORT --token=$OPENSHIFT_TOKEN_PROD
+    - oc project imitaatiopeli
+    # create application if it does not exist
+    - |
+      if oc get deploy/imitaatiopeli-azure-prod; then 
+        echo "The application already exists."
+      else 
+        oc new-app . --name=imitaatiopeli-azure-prod --strategy=docker
+        echo "The application has been created."
+      fi
+    # add secrets here
+    # list environment variables here
+    - oc set env deploy/imitaatiopeli-azure-prod AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT
+    - oc set env deploy/imitaatiopeli-azure-prod AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY
+    - oc set env deploy/imitaatiopeli-azure-prod AZURE_OPENAI_DEPLOYMENT_NAME=$AZURE_OPENAI_DEPLOYMENT_NAME
+    - oc set env deploy/imitaatiopeli-azure-prod AZURE_OPENAI_API_VERSION=$AZURE_OPENAI_API_VERSION
+    - oc set env deploy/imitaatiopeli-azure-prod DB_HOST=$DB_HOST_PROD
+    # postgres environment variables
+    - oc set env deploy/imitaatiopeli-azure-prod OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
+    - oc set env deploy/imitaatiopeli-azure-prod OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
+    - oc set env deploy/imitaatiopeli-azure-prod TZ="Europe/Helsinki"
+    # start build process in OpenShift
+    - oc start-build imitaatiopeli-azure-prod --from-dir=. --follow
+    # patch openshift buildConfig file
+    - oc patch bc/imitaatiopeli-azure-prod --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
+    - oc patch bc/imitaatiopeli-azure-prod --patch '{"spec":{"failedBuildsHistoryLimit":1}}'
+
+deploy_prod_periodically:
+  stage: deploy
+  tags:
+    - ohtu-build-4
+  environment:
+    name: prod
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == "prod"'
+      when: always
+    - when: never
   script:
     # set home path for openshift 1001 user
     - export HOME=/home/1001
