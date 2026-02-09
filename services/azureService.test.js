@@ -3,6 +3,7 @@ jest.mock("../logger", () => ({
   logger: {
     info: jest.fn(),
     error: jest.fn(),
+    warn: jest.fn(),
   },
 }));
 
@@ -81,7 +82,6 @@ describe("Azure OpenAI Service", () => {
       const result = await azureOpenAIService.askQuestion(
         "What is the weather like?",
         "Respond naturally and conversationally as a human would.",
-        0.8,
         "https://test-endpoint.openai.azure.com/openai/deployments/test-deployment/chat/completions?api-version=2025-01-01-preview",
       );
 
@@ -111,7 +111,6 @@ describe("Azure OpenAI Service", () => {
                 content: "What is the weather like?",
               },
             ],
-            temperature: 0.8,
           }),
         },
       );
@@ -221,6 +220,137 @@ describe("Azure OpenAI Service", () => {
         "Test prompt",
         0.8,
       );
+
+      expect(result.answer).toBe("No response received");
+    });
+    it("should handle content being null", async () => {
+      const mockResponse = {
+        choices: [
+          {
+            message: {
+              content: null,
+            },
+          },
+        ],
+        usage: {},
+      };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce(mockResponse),
+      });
+
+      const result = await azureOpenAIService.askQuestion("Test question");
+      expect(result.answer).toBe("No response received");
+    });
+
+    it("should handle gpt-5.2 style response with finish_reason length and empty content", async () => {
+      const mockResponse = {
+        choices: [
+          {
+            content_filter_results: {},
+            finish_reason: "length",
+            index: 0,
+            logprobs: null,
+            message: {
+              annotations: [],
+              content: "",
+              refusal: null,
+              role: "assistant",
+            },
+          },
+        ],
+        created: 1770627510,
+        id: "chatcmpl-D7HOAemyO1EnSeBBGXHmhqEIZJK5e",
+        model: "gpt-5.2-chat-2025-12-11",
+        object: "chat.completion",
+        usage: {
+          completion_tokens: 550,
+          completion_tokens_details: {
+            reasoning_tokens: 550,
+          },
+          prompt_tokens: 70,
+          total_tokens: 620,
+        },
+      };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce(mockResponse),
+      });
+
+      const result = await azureOpenAIService.askQuestion(
+        "Test question",
+        "Test prompt",
+        "https://test-endpoint.openai.azure.com/",
+      );
+      expect(result.answer).toBe(
+        "Response truncated due to length limit (reasoning may have consumed the token budget)",
+      );
+    });
+
+    it("should handle content being undefined", async () => {
+      const mockResponse = {
+        choices: [
+          {
+            message: {
+              content: undefined,
+            },
+          },
+        ],
+        usage: {},
+      };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce(mockResponse),
+      });
+
+      const result = await azureOpenAIService.askQuestion("Test question");
+
+      expect(result.answer).toBe("No response received");
+    });
+
+    it("should handle content being empty string", async () => {
+      const mockResponse = {
+        choices: [
+          {
+            message: {
+              content: "",
+            },
+          },
+        ],
+        usage: {},
+      };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce(mockResponse),
+      });
+
+      const result = await azureOpenAIService.askQuestion("Test question");
+
+      expect(result.answer).toBe("No response received");
+    });
+
+    it("should handle content being a string with only whitespace", async () => {
+      const mockResponse = {
+        choices: [
+          {
+            message: {
+              content: "   ",
+            },
+          },
+        ],
+        usage: {},
+      };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce(mockResponse),
+      });
+
+      const result = await azureOpenAIService.askQuestion("Test question");
 
       expect(result.answer).toBe("No response received");
     });
