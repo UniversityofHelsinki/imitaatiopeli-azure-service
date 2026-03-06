@@ -14,7 +14,7 @@ const validateConfig = () => {
   }
 };
 
-const makeOpenAIRequest = async (requestBody, languageModelUrl, logContext) => {
+const makeOpenAIRequest = async (requestBody, languageModelUrl) => {
   try {
     const response = await fetch(languageModelUrl, {
       method: "POST",
@@ -36,9 +36,21 @@ const makeOpenAIRequest = async (requestBody, languageModelUrl, logContext) => {
     const data = await response.json();
     logger.info("Successfully received response from Azure OpenAI");
 
+    const choice = data.choices[0];
+    let answer = choice?.message?.content?.trim() || "No response received";
+
+    if (
+      choice?.finish_reason === "length" &&
+      (!answer || answer === "No response received")
+    ) {
+      answer =
+        "Response truncated due to length limit (reasoning may have consumed the token budget)";
+      logger.warn("Azure OpenAI response truncated due to length limit");
+    }
+
     return {
       success: true,
-      answer: data.choices[0]?.message?.content || "No response received",
+      answer: answer,
       usage: data.usage,
     };
   } catch (error) {
@@ -47,20 +59,12 @@ const makeOpenAIRequest = async (requestBody, languageModelUrl, logContext) => {
   }
 };
 
-const askContextualQuestion = async (
-  messageBody,
-  prompt,
-  temperature,
-  languageModelUrl,
-  context,
-) => {
-  messageBody.max_completion_tokens = 550;
-  messageBody.temperature = temperature;
-  const logContext = `${messageBody.messages[0].content}`;
-  return await makeOpenAIRequest(messageBody, languageModelUrl, logContext);
+const askContextualQuestion = async (messageBody, prompt, languageModelUrl) => {
+  messageBody.max_completion_tokens = 2000;
+  return await makeOpenAIRequest(messageBody, languageModelUrl);
 };
 
-const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
+const askQuestion = async (question, prompt, languageModelUrl) => {
   const requestBody = {
     messages: [
       {
@@ -72,12 +76,8 @@ const askQuestion = async (question, prompt, temperature, languageModelUrl) => {
         content: question,
       },
     ],
-    temperature: temperature,
   };
-
-  const logContext = `question: ${question.substring(0, 50)}`;
-
-  return await makeOpenAIRequest(requestBody, languageModelUrl, logContext);
+  return await makeOpenAIRequest(requestBody, languageModelUrl);
 };
 
 // Initialize configuration validation

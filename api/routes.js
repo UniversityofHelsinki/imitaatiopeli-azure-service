@@ -12,11 +12,11 @@ module.exports = (router) => {
 
   router.post("/askWithContext", async (req, res) => {
     try {
-      const { messageBody, prompt, temperature, languageModelUrl } = req.body;
-      if (!messageBody || !prompt || !temperature) {
+      const { messageBody, prompt, languageModelUrl } = req.body;
+      if (!messageBody || !prompt) {
         return res.status(400).json({
           success: false,
-          error: "Question, prompt and temperature are required",
+          error: "Question and prompt are required",
         });
       }
 
@@ -26,12 +26,11 @@ module.exports = (router) => {
         : undefined;
 
       logger.info(
-        `Making request to Azure OpenAI | question=${latestUserQuestion} | prompt=${prompt} | temperature=${temperature}`,
+        `Making request to Azure OpenAI | question=${latestUserQuestion} | prompt=${prompt}`,
       );
       const result = await askContextualQuestion(
         messageBody,
         prompt,
-        temperature,
         languageModelUrl,
       );
       res.json(result);
@@ -46,25 +45,18 @@ module.exports = (router) => {
 
   router.post("/ask", async (req, res) => {
     try {
-      const { question, prompt, temperature, languageModelUrl } = req.body;
+      const { question, prompt, languageModelUrl } = req.body;
 
-      if (!question || !prompt || !temperature) {
+      if (!question || !prompt) {
         return res.status(400).json({
           success: false,
-          error: "Question, prompt and temperature are required",
+          error: "Question and prompt are required",
         });
       }
 
-      logger.info(
-        `Received question: ${question} with prompt: ${prompt} and temperature ${temperature}...`,
-      );
+      logger.info(`Received question: ${question} with prompt: ${prompt} ...`);
 
-      const result = await askQuestion(
-        question,
-        prompt,
-        temperature,
-        languageModelUrl,
-      );
+      const result = await askQuestion(question, prompt, languageModelUrl);
       res.json(result);
     } catch (error) {
       logger.error("Error processing question:", error);
