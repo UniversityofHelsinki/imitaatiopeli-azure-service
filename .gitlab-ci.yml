@@ -118,6 +118,9 @@ deploy_dev:
     - oc set env deploy/imitaatiopeli-azure-dev OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
     - oc set env deploy/imitaatiopeli-azure-dev OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
     - oc set env deploy/imitaatiopeli-azure-dev TZ="Europe/Helsinki"
+
+    # patch Node version
+    - oc patch bc/imitaatiopeli-azure-dev --type=merge --patch '{"spec":{"strategy":{"dockerStrategy":{"from":null}}}}'
     # start build process in OpenShift
     - oc start-build imitaatiopeli-azure-dev --from-dir=. --follow
     # patch openshift buildConfig file
@@ -160,6 +163,9 @@ deploy_test:
     - oc set env deploy/imitaatiopeli-azure-test OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
     - oc set env deploy/imitaatiopeli-azure-test OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
     - oc set env deploy/imitaatiopeli-azure-test TZ="Europe/Helsinki"
+
+    # patch Node version
+    - oc patch bc/imitaatiopeli-azure-test --type=merge --patch '{"spec":{"strategy":{"dockerStrategy":{"from":null}}}}'
     # start build process in OpenShift
     - oc start-build imitaatiopeli-azure-test --from-dir=. --follow
     # patch openshift buildConfig file
@@ -202,6 +208,9 @@ deploy_prod:
     - oc set env deploy/imitaatiopeli-azure-prod OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
     - oc set env deploy/imitaatiopeli-azure-prod OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
     - oc set env deploy/imitaatiopeli-azure-prod TZ="Europe/Helsinki"
+
+    # patch Node version
+    - oc patch bc/imitaatiopeli-azure-prod --type=merge --patch '{"spec":{"strategy":{"dockerStrategy":{"from":null}}}}'
     # start build process in OpenShift
     - oc start-build imitaatiopeli-azure-prod --from-dir=. --follow
     # patch openshift buildConfig file
@@ -243,6 +252,9 @@ deploy_prod_periodically:
     - oc set env deploy/imitaatiopeli-azure-prod OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
     - oc set env deploy/imitaatiopeli-azure-prod OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
     - oc set env deploy/imitaatiopeli-azure-prod TZ="Europe/Helsinki"
+
+    # patch Node version
+    - oc patch bc/imitaatiopeli-azure-prod --type=merge --patch '{"spec":{"strategy":{"dockerStrategy":{"from":null}}}}'
     # start build process in OpenShift
     - oc start-build imitaatiopeli-azure-prod --from-dir=. --follow
     # patch openshift buildConfig file
